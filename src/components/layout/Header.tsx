@@ -10,14 +10,10 @@ export const Header = () => {
   const handleLogin = () => {
     // TODO: Google OAuth 로그인
     // 임시로 테스트 유저 로그인
-    login(
-      {
-        id: "temp-user-id",
-        email: "user@example.com",
-        name: "테스트 사용자",
-      },
-      "temp-token"
-    );
+    login({
+      email: "user@example.com",
+      name: "테스트 사용자",
+    });
   };
 
   const handleLogout = () => {

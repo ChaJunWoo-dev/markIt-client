@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Button, Card, Spinner } from "../components/ui";
-import type { WatermarkHistory } from "../types";
+import type { WatermarkListResponse } from "../types";
 
 export const HistoryPage = () => {
-  const [histories] = useState<WatermarkHistory[]>([]);
+  const [histories] = useState<WatermarkListResponse[]>([]);
   const [isLoading] = useState(false);
 
-  const handleDownload = (id: string) => {
-    console.log("Downloading:", id);
-    // TODO: 실제 다운로드 API 호출
+  const handleDownload = (watermarkKey: string) => {
+    console.log("Downloading:", watermarkKey);
+    // TODO: GET /api/watermarks/{watermarkKey}/download 호출하여 downloadUrl 받기
+    // TODO: 받은 downloadUrl로 파일 다운로드
   };
 
   const handleDelete = (id: string) => {
@@ -41,23 +42,12 @@ export const HistoryPage = () => {
         {histories.map((history) => (
           <Card key={history.id} className="hover:shadow-lg transition-shadow">
             <div className="flex items-center gap-4">
-              {history.thumbnailUrl ? (
-                <img
-                  src={history.thumbnailUrl}
-                  alt="Thumbnail"
-                  className="w-24 h-24 object-cover rounded"
-                />
-              ) : (
-                <div className="w-24 h-24 bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-3xl">🖼️</span>
-                </div>
-              )}
+              <div className="w-24 h-24 bg-gray-200 rounded flex items-center justify-center">
+                <span className="text-3xl">🖼️</span>
+              </div>
 
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded font-medium">
-                    {history.watermarkType === "text" ? "텍스트" : "이미지"}
-                  </span>
+                <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm text-gray-600">
                     {new Date(history.createdAt).toLocaleDateString("ko-KR", {
                       year: "numeric",
@@ -68,11 +58,18 @@ export const HistoryPage = () => {
                     })}
                   </span>
                 </div>
-                <p className="text-gray-700">이미지 {history.imageCount}개</p>
+                <p className="text-gray-700 mb-1">이미지 {history.imageCount}개</p>
+                <p className="text-xs text-gray-500">
+                  만료: {new Date(history.expiresAt).toLocaleDateString("ko-KR")}
+                </p>
               </div>
 
               <div className="flex gap-2">
-                <Button variant="primary" size="sm" onClick={() => handleDownload(history.id)}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => handleDownload(history.watermarkKey)}
+                >
                   ZIP 다운로드
                 </Button>
                 <Button

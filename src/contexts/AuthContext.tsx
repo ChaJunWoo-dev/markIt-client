@@ -6,7 +6,7 @@ import { STORAGE_KEYS } from "../constants";
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User, token: string) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
@@ -24,10 +24,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = (user: User, token: string) => {
+  const login = (user: User) => {
     setUser(user);
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
   };
 
   const logout = () => {

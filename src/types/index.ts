@@ -1,46 +1,57 @@
+// 사용자 정보
 export interface User {
-  id: string;
   email: string;
   name: string;
   profileImage?: string;
 }
 
+// 워터마크 타입
 export type WatermarkType = "text" | "image";
 
-export interface TextWatermarkConfig {
-  type: "text";
-  text: string;
+// 워터마크 위치
+export type WatermarkPosition =
+  | "TOP_LEFT"
+  | "TOP_RIGHT"
+  | "BOTTOM_LEFT"
+  | "BOTTOM_RIGHT"
+  | "CENTER";
+
+// 워터마크 설정
+export interface WatermarkConfig {
+  type: WatermarkType;
+  text?: string; // type이 "text"일 때 사용
+  imageFile?: File; // type이 "image"일 때 사용
+  position: WatermarkPosition;
+  size: number; // 1-100
+  opacity: number; // 0.0-1.0
 }
 
-export interface ImageWatermarkConfig {
-  type: "image";
-  file: File;
-}
-
-export type WatermarkConfig = TextWatermarkConfig | ImageWatermarkConfig;
-
-export interface WatermarkRequest {
-  images: File[];
-  watermark: WatermarkConfig;
-}
-
-export interface WatermarkHistory {
+// 워터마크 생성 응답
+export interface WatermarkResponse {
   id: string;
-  userId: string;
+  watermarkKey: string;
   createdAt: string;
   imageCount: number;
-  thumbnailUrl?: string;
-  watermarkType: WatermarkType;
+  expiresAt: string;
+}
+
+// 워터마크 목록 응답
+export interface WatermarkListResponse {
+  id: string;
+  watermarkKey: string;
+  imageCount: number;
+  createdAt: string;
+  expiresAt: string;
+}
+
+// 다운로드 URL 응답
+export interface DownloadUrlResponse {
   downloadUrl: string;
+  expiresInSeconds: number;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-
-export interface AuthToken {
-  accessToken: string;
-  expiresIn: number;
+// API 에러 응답
+export interface ApiError {
+  message: string;
+  code?: string;
 }
