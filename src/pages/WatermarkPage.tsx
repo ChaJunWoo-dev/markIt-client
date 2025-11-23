@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import { useAuth } from "../contexts";
 import { Button, Card, Input } from "../components/ui";
 import type { WatermarkType } from "../types";
+import { FILE_CONSTRAINTS } from "../constants";
 
 export const WatermarkPage = () => {
   const { isAuthenticated } = useAuth();
@@ -14,11 +15,13 @@ export const WatermarkPage = () => {
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setImages((prev) => [...prev, ...files].slice(0, 50));
+
+    setImages((prev) => [...prev, ...files].slice(0, FILE_CONSTRAINTS.MAX_FILES));
   };
 
   const handleWatermarkImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       setWatermarkImage(file);
     }
@@ -31,16 +34,19 @@ export const WatermarkPage = () => {
   const handleProcess = () => {
     if (images.length === 0) {
       alert("이미지를 업로드해주세요");
+
       return;
     }
 
     if (watermarkType === "text" && !textContent.trim()) {
       alert("워터마크 텍스트를 입력해주세요");
+
       return;
     }
 
     if (watermarkType === "image" && !watermarkImage) {
       alert("워터마크 이미지를 업로드해주세요");
+
       return;
     }
 
@@ -66,7 +72,7 @@ export const WatermarkPage = () => {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors">
             <div className="text-4xl mb-2">📁</div>
             <p className="text-gray-600 mb-2">클릭하거나 드래그하여 이미지 업로드</p>
-            <p className="text-sm text-gray-500">최대 50개, 각 10MB 이하</p>
+            <p className="text-sm text-gray-500">최대 20개, 각 10MB 이하</p>
             <input
               type="file"
               multiple
@@ -178,7 +184,7 @@ export const WatermarkPage = () => {
             </p>
           </div>
           <Button
-            size="lg"
+            size="md"
             onClick={handleProcess}
             isLoading={isProcessing}
             disabled={images.length === 0}

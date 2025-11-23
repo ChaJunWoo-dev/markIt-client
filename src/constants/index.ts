@@ -7,7 +7,7 @@ export const STORAGE_KEYS = {
 
 export const FILE_CONSTRAINTS = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  MAX_FILES: 50,
+  MAX_FILES: 20,
   ACCEPTED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/webp", "image/gif"],
 } as const;
 
