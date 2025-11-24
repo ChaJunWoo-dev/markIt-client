@@ -20,6 +20,7 @@ export type WatermarkPosition =
 export interface WatermarkConfig {
   type: WatermarkType;
   text?: string; // type이 "text"일 때 사용
+  color?: string; // type이 "text"일 때 사용 (HEX 색상)
   imageFile?: File; // type이 "image"일 때 사용
   position: WatermarkPosition;
   size: number; // 1-100

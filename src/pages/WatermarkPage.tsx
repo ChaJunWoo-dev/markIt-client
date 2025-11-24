@@ -2,15 +2,20 @@ import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { useAuth } from "../contexts";
 import { Button, Card, Input } from "../components/ui";
-import type { WatermarkType } from "../types";
+import type { WatermarkType, WatermarkPosition } from "../types";
 import { FILE_CONSTRAINTS } from "../constants";
+import { watermarkApi } from "../api/watermark";
 
 export const WatermarkPage = () => {
   const { isAuthenticated } = useAuth();
   const [images, setImages] = useState<File[]>([]);
   const [watermarkType, setWatermarkType] = useState<WatermarkType>("text");
   const [textContent, setTextContent] = useState("");
+  const [textColor, setTextColor] = useState("#000000");
   const [watermarkImage, setWatermarkImage] = useState<File | null>(null);
+  const [position, setPosition] = useState<WatermarkPosition>("BOTTOM_RIGHT");
+  const [size, setSize] = useState(50);
+  const [opacity, setOpacity] = useState(50);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -31,34 +36,56 @@ export const WatermarkPage = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (images.length === 0) {
       alert("이미지를 업로드해주세요");
-
       return;
     }
 
     if (watermarkType === "text" && !textContent.trim()) {
       alert("워터마크 텍스트를 입력해주세요");
-
       return;
     }
 
     if (watermarkType === "image" && !watermarkImage) {
       alert("워터마크 이미지를 업로드해주세요");
-
       return;
     }
 
-    // TODO: 실제 API 호출
-    const config = watermarkType === "text" ? { text: textContent } : { file: watermarkImage };
-    console.log("Processing:", { images, watermarkType, config });
+    const config = {
+      type: watermarkType,
+      ...(watermarkType === "text"
+        ? { text: textContent, color: textColor }
+        : { imageFile: watermarkImage! }),
+      position,
+      size,
+      opacity: (100 - opacity) / 100,
+    };
 
     setIsProcessing(true);
-    setTimeout(() => {
-      alert("처리가 완료되었습니다!");
+
+    try {
+      if (isAuthenticated) {
+        const response = await watermarkApi.save(images, config);
+        alert(`처리가 완료되었습니다!\n워터마크 ID: ${response.watermarkKey}`);
+      } else {
+        const blob = await watermarkApi.preview(images, config);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = `watermarked-images-${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("처리 실패:", error);
+      alert("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -141,12 +168,32 @@ export const WatermarkPage = () => {
         </div>
 
         {watermarkType === "text" && (
-          <Input
-            label="워터마크 텍스트"
-            placeholder="워터마크로 사용할 텍스트를 입력하세요"
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-          />
+          <div className="space-y-4">
+            <Input
+              label="워터마크 텍스트"
+              placeholder="워터마크로 사용할 텍스트를 입력하세요"
+              value={textContent}
+              onChange={(e) => setTextContent(e.target.value)}
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">텍스트 색상</label>
+              <div className="flex gap-3 items-center">
+                <input
+                  type="color"
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  className="w-12 h-12 rounded border border-gray-300 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  placeholder="#000000"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                />
+              </div>
+            </div>
+          </div>
         )}
 
         {watermarkType === "image" && (
@@ -169,6 +216,68 @@ export const WatermarkPage = () => {
             )}
           </div>
         )}
+
+        <div className="mt-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">위치</label>
+            <div className="flex gap-2">
+              {[
+                { value: "TOP_LEFT", label: "왼쪽 위" },
+                { value: "TOP_RIGHT", label: "오른쪽 위" },
+                { value: "CENTER", label: "중앙" },
+                { value: "BOTTOM_LEFT", label: "왼쪽 아래" },
+                { value: "BOTTOM_RIGHT", label: "오른쪽 아래" },
+              ].map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPosition(value as WatermarkPosition)}
+                  className={`px-4 py-2 border rounded text-sm font-medium transition-colors cursor-pointer ${
+                    position === value
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-500"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">크기: {size}%</label>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>작게</span>
+              <span>크게</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              투명도: {opacity}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={opacity}
+              onChange={(e) => setOpacity(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>불투명</span>
+              <span>투명</span>
+            </div>
+          </div>
+        </div>
       </Card>
 
       <Card>
