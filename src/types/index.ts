@@ -1,8 +1,12 @@
 // 사용자 정보
 export interface User {
-  email: string;
   name: string;
-  profileImage?: string;
+}
+
+// 로그인 응답
+export interface LoginResponse {
+  token: string;
+  name: string;
 }
 
 // 워터마크 타입
@@ -38,11 +42,11 @@ export interface WatermarkResponse {
 
 // 워터마크 목록 응답
 export interface WatermarkListResponse {
-  id: string;
-  watermarkKey: string;
+  key: string;
   imageCount: number;
   createdAt: string;
   expiresAt: string;
+  thumbnailUrl: string;
 }
 
 // 다운로드 URL 응답

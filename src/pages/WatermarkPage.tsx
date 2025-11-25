@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import { useAuth } from "../contexts";
-import { Button, Card, Input } from "../components/ui";
+import { Button, Card, Input, Modal } from "../components/ui";
 import type { WatermarkType, WatermarkPosition } from "../types";
 import { FILE_CONSTRAINTS } from "../constants";
 import { watermarkApi } from "../api/watermark";
@@ -14,9 +14,11 @@ export const WatermarkPage = () => {
   const [textColor, setTextColor] = useState("#000000");
   const [watermarkImage, setWatermarkImage] = useState<File | null>(null);
   const [position, setPosition] = useState<WatermarkPosition>("BOTTOM_RIGHT");
-  const [size, setSize] = useState(50);
+  const [size, setSize] = useState(10);
   const [opacity, setOpacity] = useState(50);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
+  const [successModal, setSuccessModal] = useState({ isOpen: false, watermarkKey: "" });
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -38,17 +40,17 @@ export const WatermarkPage = () => {
 
   const handleProcess = async () => {
     if (images.length === 0) {
-      alert("이미지를 업로드해주세요");
+      setErrorModal({ isOpen: true, message: "이미지를 업로드해주세요" });
       return;
     }
 
     if (watermarkType === "text" && !textContent.trim()) {
-      alert("워터마크 텍스트를 입력해주세요");
+      setErrorModal({ isOpen: true, message: "워터마크 텍스트를 입력해주세요" });
       return;
     }
 
     if (watermarkType === "image" && !watermarkImage) {
-      alert("워터마크 이미지를 업로드해주세요");
+      setErrorModal({ isOpen: true, message: "워터마크 이미지를 업로드해주세요" });
       return;
     }
 
@@ -67,7 +69,7 @@ export const WatermarkPage = () => {
     try {
       if (isAuthenticated) {
         const response = await watermarkApi.save(images, config);
-        alert(`처리가 완료되었습니다!\n워터마크 ID: ${response.watermarkKey}`);
+        setSuccessModal({ isOpen: true, watermarkKey: response.watermarkKey });
       } else {
         const blob = await watermarkApi.preview(images, config);
         const url = window.URL.createObjectURL(blob);
@@ -81,8 +83,7 @@ export const WatermarkPage = () => {
         window.URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error("처리 실패:", error);
-      alert("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setErrorModal({ isOpen: true, message: "처리 중 오류가 발생했습니다. 다시 시도해주세요." });
     } finally {
       setIsProcessing(false);
     }
@@ -302,6 +303,38 @@ export const WatermarkPage = () => {
           </Button>
         </div>
       </Card>
+
+      {/* 성공 모달 */}
+      <Modal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, watermarkKey: "" })}
+        title="처리 완료"
+      >
+        <p className="mb-2">처리가 완료되었습니다!</p>
+        <p className="text-sm text-gray-600 mb-6">워터마크 ID: {successModal.watermarkKey}</p>
+        <div className="flex justify-end">
+          <Button
+            variant="primary"
+            onClick={() => setSuccessModal({ isOpen: false, watermarkKey: "" })}
+          >
+            확인
+          </Button>
+        </div>
+      </Modal>
+
+      {/* 에러 모달 */}
+      <Modal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: "" })}
+        title="오류"
+      >
+        <p className="mb-6">{errorModal.message}</p>
+        <div className="flex justify-end">
+          <Button variant="primary" onClick={() => setErrorModal({ isOpen: false, message: "" })}>
+            확인
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

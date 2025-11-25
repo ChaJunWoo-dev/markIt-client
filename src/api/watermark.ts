@@ -1,5 +1,10 @@
 import { apiClient } from "./client";
-import type { WatermarkResponse, WatermarkListResponse, WatermarkConfig } from "../types";
+import type {
+  WatermarkResponse,
+  WatermarkListResponse,
+  WatermarkConfig,
+  DownloadUrlResponse,
+} from "../types";
 
 export const watermarkApi = {
   preview: async (images: File[], config: WatermarkConfig): Promise<Blob> => {
@@ -70,7 +75,19 @@ export const watermarkApi = {
     return response.data;
   },
 
-  delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/api/watermarks/${id}`);
+  download: async (key: string): Promise<void> => {
+    const response = await apiClient.get<DownloadUrlResponse>(`/api/watermarks/${key}/download`);
+    const downloadUrl = response.data.downloadUrl;
+
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = `watermark-${key}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
+  delete: async (key: string): Promise<void> => {
+    await apiClient.delete(`/api/watermark/${key}`);
   },
 };
