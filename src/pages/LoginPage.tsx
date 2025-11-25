@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts";
 import { authApi } from "../api/auth";
+import { getErrorMessage } from "../api/client";
 import { GOOGLE_CONFIG } from "../config/google";
+import { STORAGE_KEYS } from "../constants";
 import { FeatureItem } from "../components/login";
 import { Modal, Button } from "../components/ui";
 import logoImg from "../assets/markit.png";
@@ -38,14 +40,14 @@ export const LoginPage = () => {
     try {
       const loginResponse = await authApi.loginWithGoogleToken(response.credential);
 
-      // 토큰 저장
-      localStorage.setItem("accessToken", loginResponse.token);
-
-      // 유저 정보로 로그인
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, loginResponse.token);
       login({ name: loginResponse.name });
       navigate(-1);
     } catch (error) {
-      setErrorModal({ isOpen: true, message: "로그인에 실패했습니다. 다시 시도해주세요." });
+      setErrorModal({
+        isOpen: true,
+        message: getErrorMessage(error, "로그인에 실패했습니다. 다시 시도해주세요.")
+      });
     }
   };
 
@@ -118,7 +120,6 @@ export const LoginPage = () => {
         </p>
       </div>
 
-      {/* 에러 모달 */}
       <Modal
         isOpen={errorModal.isOpen}
         onClose={() => setErrorModal({ isOpen: false, message: "" })}

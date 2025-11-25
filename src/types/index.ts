@@ -1,18 +1,14 @@
-// 사용자 정보
 export interface User {
   name: string;
 }
 
-// 로그인 응답
 export interface LoginResponse {
   token: string;
   name: string;
 }
 
-// 워터마크 타입
 export type WatermarkType = "text" | "image";
 
-// 워터마크 위치
 export type WatermarkPosition =
   | "TOP_LEFT"
   | "TOP_RIGHT"
@@ -20,18 +16,16 @@ export type WatermarkPosition =
   | "BOTTOM_RIGHT"
   | "CENTER";
 
-// 워터마크 설정
 export interface WatermarkConfig {
   type: WatermarkType;
-  text?: string; // type이 "text"일 때 사용
-  color?: string; // type이 "text"일 때 사용 (HEX 색상)
-  imageFile?: File; // type이 "image"일 때 사용
+  text?: string;
+  color?: string;
+  imageFile?: File;
   position: WatermarkPosition;
-  size: number; // 1-100
-  opacity: number; // 0.0-1.0
+  size: number;
+  opacity: number;
 }
 
-// 워터마크 생성 응답
 export interface WatermarkResponse {
   id: string;
   watermarkKey: string;
@@ -40,7 +34,6 @@ export interface WatermarkResponse {
   expiresAt: string;
 }
 
-// 워터마크 목록 응답
 export interface WatermarkListResponse {
   key: string;
   imageCount: number;
@@ -49,13 +42,11 @@ export interface WatermarkListResponse {
   thumbnailUrl: string;
 }
 
-// 다운로드 URL 응답
 export interface DownloadUrlResponse {
   downloadUrl: string;
   expiresInSeconds: number;
 }
 
-// API 에러 응답
 export interface ApiError {
   message: string;
   code?: string;

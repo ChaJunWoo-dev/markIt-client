@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Card, Spinner, Modal } from "../components/ui";
 import type { WatermarkListResponse } from "../types";
 import { watermarkApi } from "../api/watermark";
+import { getErrorMessage } from "../api/client";
 
 export const HistoryPage = () => {
   const [histories, setHistories] = useState<WatermarkListResponse[]>([]);
@@ -21,7 +22,10 @@ export const HistoryPage = () => {
         const data = await watermarkApi.getList();
         setHistories(data);
       } catch (error) {
-        setErrorModal({ isOpen: true, message: "목록을 불러오는데 실패했습니다." });
+        setErrorModal({
+          isOpen: true,
+          message: getErrorMessage(error, "목록을 불러오는데 실패했습니다.")
+        });
       } finally {
         setIsLoading(false);
       }
@@ -34,7 +38,10 @@ export const HistoryPage = () => {
     try {
       await watermarkApi.download(key);
     } catch (error) {
-      setErrorModal({ isOpen: true, message: "다운로드에 실패했습니다." });
+      setErrorModal({
+        isOpen: true,
+        message: getErrorMessage(error, "다운로드에 실패했습니다.")
+      });
     }
   };
 
@@ -45,7 +52,10 @@ export const HistoryPage = () => {
       setDeleteModal({ isOpen: false, key: null });
     } catch (error) {
       setDeleteModal({ isOpen: false, key: null });
-      setErrorModal({ isOpen: true, message: "삭제에 실패했습니다." });
+      setErrorModal({
+        isOpen: true,
+        message: getErrorMessage(error, "삭제에 실패했습니다.")
+      });
     }
   };
 
@@ -119,7 +129,6 @@ export const HistoryPage = () => {
         ))}
       </div>
 
-      {/* 삭제 확인 모달 */}
       <Modal
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, key: null })}
@@ -143,7 +152,6 @@ export const HistoryPage = () => {
         </div>
       </Modal>
 
-      {/* 에러 모달 */}
       <Modal
         isOpen={errorModal.isOpen}
         onClose={() => setErrorModal({ isOpen: false, message: "" })}

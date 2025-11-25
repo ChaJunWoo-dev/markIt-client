@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts";
 import { Button } from "../ui";
 import logoImg from "../../assets/markit.png";
-import { authApi } from "../../api/auth";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -20,7 +19,10 @@ export const Header = () => {
   return (
     <header className="bg-white border-b">
       <div className="w-full max-w-[1600px] mx-auto px-8 py-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center hover:opacity-70 transition-opacity cursor-pointer">
+        <Link
+          to="/"
+          className="flex items-center hover:opacity-70 transition-opacity cursor-pointer"
+        >
           <img src={logoImg} alt="markIt" className="h-10" />
         </Link>
 
@@ -36,9 +38,6 @@ export const Header = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
-              {user.profileImage && (
-                <img src={user.profileImage} alt={user.name} className="w-8 h-8 rounded-full" />
-              )}
               <span className="text-gray-700">{user.name}</span>
               <Button variant="outline" onClick={handleLogout}>
                 로그아웃

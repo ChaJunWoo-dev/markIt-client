@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { useAuth } from "../contexts";
 import { Button, Card, Input, Modal } from "../components/ui";
 import type { WatermarkType, WatermarkPosition } from "../types";
 import { FILE_CONSTRAINTS } from "../constants";
 import { watermarkApi } from "../api/watermark";
+import { getErrorMessage } from "../api/client";
 
 export const WatermarkPage = () => {
   const { isAuthenticated } = useAuth();
@@ -19,6 +20,31 @@ export const WatermarkPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
   const [successModal, setSuccessModal] = useState({ isOpen: false, watermarkKey: "" });
+
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [watermarkImageUrl, setWatermarkImageUrl] = useState<string>("");
+
+  useEffect(() => {
+    const urls = images.map((file) => URL.createObjectURL(file));
+    setImageUrls(urls);
+
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
+
+  useEffect(() => {
+    if (watermarkImage) {
+      const url = URL.createObjectURL(watermarkImage);
+      setWatermarkImageUrl(url);
+
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setWatermarkImageUrl("");
+    }
+  }, [watermarkImage]);
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -83,7 +109,10 @@ export const WatermarkPage = () => {
         window.URL.revokeObjectURL(url);
       }
     } catch (error) {
-      setErrorModal({ isOpen: true, message: "처리 중 오류가 발생했습니다. 다시 시도해주세요." });
+      setErrorModal({
+        isOpen: true,
+        message: getErrorMessage(error, "처리 중 오류가 발생했습니다. 다시 시도해주세요.")
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -115,10 +144,10 @@ export const WatermarkPage = () => {
           <div className="mt-4">
             <p className="text-sm text-gray-600 mb-2">업로드된 이미지: {images.length}개</p>
             <div className="grid grid-cols-4 gap-2">
-              {images.slice(0, 8).map((file, index) => (
+              {images.slice(0, 8).map((_, index) => (
                 <div key={index} className="relative group">
                   <img
-                    src={URL.createObjectURL(file)}
+                    src={imageUrls[index]}
                     alt={`Preview ${index}`}
                     className="w-full h-24 object-cover rounded"
                   />
@@ -206,10 +235,10 @@ export const WatermarkPage = () => {
               onChange={handleWatermarkImageUpload}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
-            {watermarkImage && (
+            {watermarkImage && watermarkImageUrl && (
               <div className="mt-2">
                 <img
-                  src={URL.createObjectURL(watermarkImage)}
+                  src={watermarkImageUrl}
                   alt="Watermark preview"
                   className="w-32 h-32 object-contain border rounded"
                 />
@@ -304,7 +333,6 @@ export const WatermarkPage = () => {
         </div>
       </Card>
 
-      {/* 성공 모달 */}
       <Modal
         isOpen={successModal.isOpen}
         onClose={() => setSuccessModal({ isOpen: false, watermarkKey: "" })}
@@ -322,7 +350,6 @@ export const WatermarkPage = () => {
         </div>
       </Modal>
 
-      {/* 에러 모달 */}
       <Modal
         isOpen={errorModal.isOpen}
         onClose={() => setErrorModal({ isOpen: false, message: "" })}
