@@ -2,7 +2,6 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localho
 
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: "markit_access_token",
-  USER: "markit_user",
 } as const;
 
 export const FILE_CONSTRAINTS = {
