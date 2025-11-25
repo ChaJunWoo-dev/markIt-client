@@ -2,18 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts";
 import { Button } from "../ui";
 import logoImg from "../../assets/markit.png";
+import { authApi } from "../../api/auth";
 
 export const Header = () => {
   const navigate = useNavigate();
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogin = () => {
-    // TODO: Google OAuth 로그인
-    // 임시로 테스트 유저 로그인
-    login({
-      email: "user@example.com",
-      name: "테스트 사용자",
-    });
+    navigate("/login");
   };
 
   const handleLogout = () => {
