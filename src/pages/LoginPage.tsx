@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts";
+import { useAuth } from "../contexts/AuthContext";
 import { authApi } from "../api/auth";
 import { getErrorMessage } from "../api/client";
 import { GOOGLE_CONFIG } from "../config/google";
 import { STORAGE_KEYS } from "../constants";
-import { FeatureItem } from "../components/login";
+import { FeatureItem } from "../components/login/FeatureItem";
 import { Modal, Button } from "../components/ui";
 import logoImg from "../assets/markit.png";
 
@@ -78,13 +78,13 @@ export const LoginPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-md w-full mx-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6 md:space-y-8">
           <div className="text-center">
-            <img src={logoImg} alt="markIt" className="h-16 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">환영합니다</h1>
-            <p className="text-gray-600">간편하게 이미지에 워터마크를 추가하세요</p>
+            <img src={logoImg} alt="markIt" className="h-12 md:h-16 mx-auto mb-4" />
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">환영합니다</h1>
+            <p className="text-sm md:text-base text-gray-600">간편하게 이미지에 워터마크를 추가하세요</p>
           </div>
 
           <div className="space-y-3 flex flex-col items-center">
@@ -105,7 +105,7 @@ export const LoginPage = () => {
           <div ref={googleButtonRef} className="w-full flex justify-center"></div>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-xs md:text-sm text-gray-600">
               로그인 없이도 사용 가능합니다
               <br />
               <a href="/" className="text-blue-600 hover:text-blue-700 font-medium">
@@ -115,7 +115,7 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-xs md:text-sm text-gray-500 mt-4 md:mt-6">
           로그인하면 처리 내역을 저장하고 나중에 다시 다운로드할 수 있습니다
         </p>
       </div>
