@@ -28,7 +28,7 @@ export const watermarkApi = {
     }
 
     const endpoint =
-      config.type === "text" ? "/api/watermark/preview/text" : "/api/watermark/preview/image";
+      config.type === "text" ? "/api/watermarks/preview/text" : "/api/watermarks/preview/image";
     const response = await apiClient.post<Blob>(endpoint, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -60,7 +60,7 @@ export const watermarkApi = {
     }
 
     const endpoint =
-      config.type === "text" ? "/api/watermark/save/text" : "/api/watermark/save/image";
+      config.type === "text" ? "/api/watermarks/text" : "/api/watermarks/image";
     const response = await apiClient.post<WatermarkResponse>(endpoint, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -71,7 +71,7 @@ export const watermarkApi = {
   },
 
   getList: async (): Promise<WatermarkListResponse[]> => {
-    const response = await apiClient.get<WatermarkListResponse[]>("/api/watermark");
+    const response = await apiClient.get<WatermarkListResponse[]>("/api/watermarks");
     return response.data;
   },
 
@@ -79,15 +79,10 @@ export const watermarkApi = {
     const response = await apiClient.get<DownloadUrlResponse>(`/api/watermarks/${key}/download`);
     const downloadUrl = response.data.downloadUrl;
 
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = `watermark-${key}.zip`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(downloadUrl, "_blank");
   },
 
   delete: async (key: string): Promise<void> => {
-    await apiClient.delete(`/api/watermark/${key}`);
+    await apiClient.delete(`/api/watermarks/${key}`);
   },
 };
