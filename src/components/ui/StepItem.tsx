@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 interface StepItemProps {
   number: number;
   title: string;
