@@ -27,24 +27,20 @@ export interface WatermarkConfig {
 }
 
 export interface WatermarkResponse {
-  id: string;
-  watermarkKey: string;
+  key: string;
   createdAt: string;
   imageCount: number;
-  expiresAt: string;
 }
 
 export interface WatermarkListResponse {
   key: string;
   imageCount: number;
   createdAt: string;
-  expiresAt: string;
   thumbnailUrl: string;
 }
 
 export interface DownloadUrlResponse {
   downloadUrl: string;
-  expiresInSeconds: number;
 }
 
 export interface ApiError {
